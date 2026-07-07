@@ -1,0 +1,26 @@
+/* SmartMenu Flask static stylesheet */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f7f8fa;
+  color: #212121;
+}
+
+header {
+  background: #24292e;
+  color: #ffffff;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+main {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
