@@ -2,6 +2,8 @@
 {% block title %}Menu{% endblock %}
 {% block content %}
 <h1>Menu</h1>
+{% for cat in categories %}
+<h3>{{ cat['name'] }}</h3>
 <table class="table">
     <thead>
         <tr>
@@ -12,14 +14,22 @@
     </thead>
     <tbody>
         {% for item in items %}
+        {%if item['category_id'] == cat['id']%}
         <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.description }}</td>
             <td>${{ item.price }}</td>
         </tr>
-        {% endfor %}
+        {%endif%}
+        {% if error %}
+        <tr>
+            <td colspan="3" class="text-center text-danger">{{ error }}</td>
+        </tr>
+        {% endif %}
     </tbody>
+    {% endfor %}
 </table>    
+{% endfor %}
 {% endblock %}
 
 

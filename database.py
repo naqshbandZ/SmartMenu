@@ -13,6 +13,14 @@ def get_menu_item():
     conn.close()
     return items
 
+def get_category():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('select * from category')
+    categories = cursor.fetchall()
+    conn.close()
+    return categories
+
 import sqlite3 
 
 def get_connection():
