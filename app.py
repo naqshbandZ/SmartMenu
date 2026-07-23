@@ -49,6 +49,32 @@ def menu():
 
         return render_template('menu.html', items=items,categories=categories, error="No menu items found" if not items else None)
 
+# add cart
+@app.route('/cart/add', methods = ['POST'])
+def add_to_cart():
+
+    id = request.form.get('item_id')
+    name = request.form.get('item_name')
+    price = request.form.get('item_price')
+    if 'cart' not in session:
+        session['cart'] = []
+    session['cart'].append({
+        'id': id,
+        'name': name,
+        'price': price})
+    
+    session.modified = True 
+        
+    return redirect('/menu')
+
+@app.route('/cart')
+def cart_page():
+    # get cart from session
+    cart = session.get('cart',[])
+    total = sum(float(item['price']) for item in cart)
+    # pass it to cart.html
+    return render_template('cart.html', cart=cart,total=total)
+
 
 # logout route
 @app.route('/logout')

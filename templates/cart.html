@@ -1,0 +1,33 @@
+{%extends "layout.html"%}
+{% block title %}cart{% endblock %}
+{%block content%}
+
+{%if not cart %}
+    <p>empty cart</p>
+{% else %}
+<h1>cart</h1>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">name</th>
+      <th scope="col">price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+
+    {%for item in cart%}
+
+      <td>{{item['name']}}</td>
+      <td>{{item['price']}}€</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+    <h5>total price</h5>
+    <p>{{ total }}€</p>
+
+
+    <button class="btn btn-primary" type="submit">order</button>
+{% endif %}
+{% endblock %}
