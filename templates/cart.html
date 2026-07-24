@@ -10,6 +10,7 @@
   <thead>
     <tr>
       <th scope="col">name</th>
+      <th scope="col">Quantity</th>
       <th scope="col">price</th>
     </tr>
   </thead>
@@ -18,7 +19,17 @@
 
     {%for item in cart%}
 
-      <td>{{item['name']}}</td>
+      <td>{{item['name']}}
+        <img src="{{ item['image'] }}" style="width:80px;">
+      </td>
+
+       <td>
+
+    <a href="/cart/decrease/{{ item['id'] }}">[-]</a>
+    {{ item['quantity'] }}
+    <a href="/cart/increase/{{ item['id'] }}">[ +]</a>
+      </td>
+
       <td>{{item['price']}}€</td>
     </tr>
     {% endfor %}

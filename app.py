@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from database import get_menu_item, get_category
 
 app = Flask(__name__)
@@ -46,34 +46,70 @@ def book_table():
 def menu():
         items = get_menu_item()
         categories = get_category()
-
+        print(items[0]['image_path'])
         return render_template('menu.html', items=items,categories=categories, error="No menu items found" if not items else None)
 
 # add cart
-@app.route('/cart/add', methods = ['POST'])
+@app.route('/cart/add', methods=['POST'])
 def add_to_cart():
-
     id = request.form.get('item_id')
     name = request.form.get('item_name')
     price = request.form.get('item_price')
+    image = request.form.get('item_image')
+    
     if 'cart' not in session:
         session['cart'] = []
+
+    for item in session['cart']:
+        if item['id'] == id:
+            flash('Item already in cart! Change quantity from cart.')
+            session.modified = True
+            return redirect('/menu')
+    
     session['cart'].append({
         'id': id,
         'name': name,
-        'price': price})
-    
-    session.modified = True 
-        
+        'price': price,
+        'quantity': 1,
+        'image': image
+    })
+    session.modified = True
     return redirect('/menu')
+
+@app.route('/cart/increase/<item_id>')
+def increase_quantity(item_id):
+    for item in session['cart']:
+        if item['id'] == item_id:
+            # increase quantity by 1
+            item['quantity'] += 1
+            # set session.modified
+            session.modified = True
+            break
+    return redirect('/cart')
+
+@app.route('/cart/decrease/<item_id>')
+def decrease_quantity(item_id):
+    for item in session['cart']:
+        if item['id'] == item_id:
+            item['quantity'] -= 1
+            if item['quantity'] == 0:
+                session['cart'].remove(item)
+            break
+    session.modified = True
+    return redirect('/cart')
 
 @app.route('/cart')
 def cart_page():
     # get cart from session
     cart = session.get('cart',[])
-    total = sum(float(item['price']) for item in cart)
+    total = sum(float(item['price']) * item['quantity'] for item in cart)
     # pass it to cart.html
     return render_template('cart.html', cart=cart,total=total)
+
+@app.route('/clear')
+def clear():
+    session.clear()
+    return redirect('/menu')
 
 
 # logout route
