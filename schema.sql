@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS menu_item(
 
 CREATE TABLE IF NOT EXISTS restaurant_table(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    table_number INTEGER NOT NULL,
+    table_number VARCHAR NOT NULL,
     qr_image_path VARCHAR,
     is_occupied BOOLEAN DEFAULT 0
 );

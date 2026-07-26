@@ -21,13 +21,58 @@ def get_category():
     conn.close()
     return categories
 
-import sqlite3 
+
 
 def get_connection():
     conn = sqlite3.connect('db.sqlite3')
     conn.row_factory = sqlite3.Row
     
     return conn
+
+def add_category(name):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into category (name) values (?)', (name,))
+    conn.commit()
+    conn.close()
+
+def delete_category(idd):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM category WHERE id=(?)', (idd,))
+    conn.commit()
+    conn.close()
+
+def add_menu(name,description,price,category_id,image_path):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into menu_item(name, description, price, category_id, image_path) values (?,?,?,?,?)',
+                   (name, description, price, category_id, image_path))
+    conn.commit()
+    conn.close()
+
+def delete_menu(idd):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('delete from menu_item where id =(?)', (idd,))
+    conn.commit()
+    conn.close()
+
+def add_table(table_number):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into restaurant_table(table_number) values (?)', (table_number,))
+    conn.commit()
+    table_id = cursor.lastrowid
+    conn.close()
+    return table_id
+
+def update_table_qr(table_id,path):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE restaurant_table SET qr_image_path = ? WHERE id = ?', (path, table_id))
+    conn.commit()
+    conn.close()
 
 def get_menu_item():
     conn = get_connection()

@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}add table {% endblock%}
+
+{% block content %}
+
+<form method="POST" action="/admin/add/table">
+    <input type="number" name="table_number" class="form-control mb-2" placeholder="Table number">
+    <button type="submit" class="btn btn-primary">Add Table</button>
+</form>
+
+{% endblock %}

@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from database import get_menu_item, get_category
+from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr
+from werkzeug.utils import secure_filename
+from qr_generator import generate_qr
+import os
 
 app = Flask(__name__)
 
@@ -46,7 +49,6 @@ def book_table():
 def menu():
         items = get_menu_item()
         categories = get_category()
-        print(items[0]['image_path'])
         return render_template('menu.html', items=items,categories=categories, error="No menu items found" if not items else None)
 
 # add cart
@@ -105,6 +107,58 @@ def cart_page():
     total = sum(float(item['price']) * item['quantity'] for item in cart)
     # pass it to cart.html
     return render_template('cart.html', cart=cart,total=total)
+
+
+@app.route('/admin/category/add', methods=['POST'])
+def admin_add_category():
+    name = request.form.get('cate_name')
+    add_category(name)
+    return redirect('/admin/menu')
+
+@app.route('/admin/delete/category', methods=['POST'])
+def admin_delete_category():
+    id = request.form.get('category_id')
+    delete_category(id)
+    return redirect('/admin/menu')
+
+@app.route('/admin/menu/add',  methods=['POST'])
+def admin_add_menu():
+    name = request.form.get('menu_name')
+    description = request.form.get('description')
+    price = request.form.get('price')
+    category = request.form.get('category')
+    image = request.files['image_path']
+    filename = secure_filename(image.filename)
+    image.save(os.path.join('static/images', filename))
+    image_path = '/static/images/' + filename 
+
+    add_menu(name,description,price,category,image_path)
+    return redirect('/admin/menu')
+
+@app.route('/admin/delete/menu', methods=['POST'])
+def admin_delete_menu():
+    id = request.form.get('menu_id')
+    delete_menu(id)
+    return redirect('/admin/menu')
+
+
+@app.route('/admin/menu')
+def admin_menu():
+    categories = get_category()
+    menus = get_menu_item()
+    return render_template('admin_menu.html', categories=categories, menus=menus)
+
+@app.route('/admin/add/table', methods=['POST'])
+def admin_add_table():
+    table_number=request.form.get('table_number')
+    table_id = add_table(table_number)
+    path = generate_qr(table_id, table_number)
+    update_table_qr(table_id, path)
+    return redirect('/admin/add_table')
+
+@app.route('/admin/add_table')
+def admin_table():
+    return render_template("add_table.html")
 
 @app.route('/clear')
 def clear():
