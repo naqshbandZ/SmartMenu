@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr
+from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists
 from werkzeug.utils import secure_filename
 from qr_generator import generate_qr
 import os
@@ -151,14 +151,29 @@ def admin_menu():
 @app.route('/admin/add/table', methods=['POST'])
 def admin_add_table():
     table_number=request.form.get('table_number')
+
+    if table_exists(table_number):
+        flash('Table already exists!')
+
     table_id = add_table(table_number)
     path = generate_qr(table_id, table_number)
     update_table_qr(table_id, path)
+    
     return redirect('/admin/add_table')
+
 
 @app.route('/admin/add_table')
 def admin_table():
-    return render_template("add_table.html")
+    tables = show_table()
+    return render_template("add_table.html", tables=tables)
+
+@app.route('/admin/delete/table/<int:id>')
+def admin_delete_tb(id):
+    delete_table(id)
+
+    return redirect('/admin/add_table')
+
+
 
 @app.route('/clear')
 def clear():

@@ -4,8 +4,19 @@
 {% block content %}
 
 <form method="POST" action="/admin/add/table">
-    <input type="number" name="table_number" class="form-control mb-2" placeholder="Table number">
+    <input type="text" name="table_number" class="form-control mb-2" placeholder="Table number">
     <button type="submit" class="btn btn-primary">Add Table</button>
 </form>
 
+<div class="card" style="width: 200px;">
+    {% for table in tables%}
+    <img src="{{ table['qr_image_path'] }}" class="card-img-top" alt="QR Code">
+    <div class="card-body">
+        <h5 class="card-title">Table {{ table['table_number'] }}</h5>
+    </div>
+        <a href="/admin/delete/table/{{ table['id'] }}" class="btn btn-danger btn-sm">Delete</a>
+        <a href="{{ table['qr_image_path'] }}" download class="btn btn-primary btn-sm">Download QR</a>
+
+    {% endfor %}
+</div>
 {% endblock %}

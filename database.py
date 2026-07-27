@@ -74,6 +74,30 @@ def update_table_qr(table_id,path):
     conn.commit()
     conn.close()
 
+def show_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('select * from restaurant_table ')
+    tables = cursor.fetchall()
+    conn.close()
+    return tables
+
+def delete_table(id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('delete from restaurant_table where id = ?', (id,))
+    conn.commit()
+    conn.close()
+
+
+def table_exists(table_number):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM restaurant_table WHERE table_number = ?', (table_number,))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
+
 def get_menu_item():
     conn = get_connection()
     cursor = conn.cursor()
