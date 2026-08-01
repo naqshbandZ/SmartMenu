@@ -39,6 +39,8 @@
     <p>{{ total }}€</p>
 
 
-    <button class="btn btn-primary" type="submit">order</button>
+  <form action="/place_order" method="POST">
+    <button type="submit">Place Order</button>
+</form>
 {% endif %}
 {% endblock %}

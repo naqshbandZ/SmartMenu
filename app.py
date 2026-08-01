@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists
+from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists, add_orders, add_order_item
 from werkzeug.utils import secure_filename
 from qr_generator import generate_qr
 import os
@@ -45,10 +45,11 @@ def book_table():
     return render_template('book-table.html')
 
 # menu route
-@app.route('/menu')
-def menu():
+@app.route('/menu/<int:table_id>')
+def menu(table_id):
         items = get_menu_item()
         categories = get_category()
+        session['table_id'] = table_id
         return render_template('menu.html', items=items,categories=categories, error="No menu items found" if not items else None)
 
 # add cart
@@ -66,7 +67,7 @@ def add_to_cart():
         if item['id'] == id:
             flash('Item already in cart! Change quantity from cart.')
             session.modified = True
-            return redirect('/menu')
+            return redirect(f"/menu/{session.get('table_id', 1)}")
     
     session['cart'].append({
         'id': id,
@@ -76,7 +77,24 @@ def add_to_cart():
         'image': image
     })
     session.modified = True
-    return redirect('/menu')
+    return redirect(f"/menu/{session.get('table_id', 1)}")
+#//-------------------------------new line
+@app.route('/place_order', methods=['POST'])
+def admin_add_order():
+
+    table_id = session.get('table_id')
+    cart = session.get('cart',[])
+    total = sum(float(item['price']) * item['quantity'] for item in cart)
+    order_id = add_orders(table_id,total)
+
+    for item in cart:
+        add_order_item(order_id, item['id'], item['quantity'], item['price'])
+
+    session.pop('cart', None)
+    flash('Order placed successfully!')
+    return redirect(f"/menu/{session.get('table_id', 1)}")
+  
+
 
 @app.route('/cart/increase/<item_id>')
 def increase_quantity(item_id):
@@ -108,6 +126,7 @@ def cart_page():
     # pass it to cart.html
     return render_template('cart.html', cart=cart,total=total)
 
+# ------------------------ADMIN---------------------------------------------
 
 @app.route('/admin/category/add', methods=['POST'])
 def admin_add_category():
@@ -147,6 +166,7 @@ def admin_menu():
     categories = get_category()
     menus = get_menu_item()
     return render_template('admin_menu.html', categories=categories, menus=menus)
+
 
 @app.route('/admin/add/table', methods=['POST'])
 def admin_add_table():

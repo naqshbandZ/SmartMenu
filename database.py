@@ -67,6 +67,23 @@ def add_table(table_number):
     conn.close()
     return table_id
 
+def add_orders(table_id,total_amount):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into orders(table_id, total_amount) values (?,?)', (table_id, total_amount))
+    order_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return order_id
+
+def add_order_item(order_id,menu_item_id,quantity,price):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into order_item(order_id, menu_item_id, quantity, price_at_order) values (?,?,?,?)', (order_id,menu_item_id,quantity,price))
+    conn.commit()
+    conn.close()
+
+
 def update_table_qr(table_id,path):
     conn = get_connection()
     cursor = conn.cursor()
@@ -105,3 +122,4 @@ def get_menu_item():
     items = cursor.fetchall()
     conn.close()
     return items
+

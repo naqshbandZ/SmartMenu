@@ -1,6 +1,6 @@
 import qrcode
 
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "http://192.168.1.5:5000"
 
 def generate_qr(table_id, table_number):
     url = f"{BASE_URL}/menu/{table_id}"
