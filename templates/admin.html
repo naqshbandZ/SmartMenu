@@ -11,4 +11,16 @@
 
 
 </div>
+{% for order in orders %}
+    <div class="card mb-3">
+        <div class="card-header">
+            Order #{{ order['id'] }} — Table {{ order['table_id'] }} — {{ order['total_amount'] }}€
+        </div>
+        <div class="card-body">
+            {% for item in order['items'] %}
+            <p>• {{ item['name'] }} x{{ item['quantity'] }} — {{ item['price'] }}€</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
 {% endblock %}

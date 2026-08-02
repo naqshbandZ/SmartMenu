@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists, add_orders, add_order_item
+from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists, add_orders, add_order_item, get_orders
 from werkzeug.utils import secure_filename
 from qr_generator import generate_qr
 import os
@@ -34,10 +34,12 @@ def login():
 # admin page route, 
 @app.route('/admin')
 def admin():
-     print("session:", session)
      if not session.get('logged_in'):
          return redirect('login.html')
-     return render_template('admin.html')
+     
+     orders = get_orders()
+     print(orders)
+     return render_template('admin.html', orders=orders)
 
 # book table route
 @app.route('/book-table')
@@ -66,7 +68,6 @@ def add_to_cart():
     for item in session['cart']:
         if item['id'] == id:
             flash('Item already in cart! Change quantity from cart.')
-            session.modified = True
             return redirect(f"/menu/{session.get('table_id', 1)}")
     
     session['cart'].append({
@@ -147,6 +148,7 @@ def admin_add_menu():
     price = request.form.get('price')
     category = request.form.get('category')
     image = request.files['image_path']
+
     filename = secure_filename(image.filename)
     image.save(os.path.join('static/images', filename))
     image_path = '/static/images/' + filename 

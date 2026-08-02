@@ -99,6 +99,22 @@ def show_table():
     conn.close()
     return tables
 
+def get_orders():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT orders.id, orders.table_id, orders.status, orders.total_amount,
+               order_item.quantity, order_item.price_at_order,
+               menu_item.name
+        FROM orders
+        JOIN order_item ON orders.id = order_item.order_id
+        JOIN menu_item ON order_item.menu_item_id = menu_item.id
+        WHERE orders.status = "pending"
+    ''')
+    orders = cursor.fetchall()
+    conn.close()
+    return orders
+
 def delete_table(id):
     conn = get_connection()
     cursor = conn.cursor()
