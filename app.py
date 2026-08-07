@@ -38,7 +38,7 @@ def admin():
          return redirect('login.html')
      
      orders = get_orders()
-     print(orders)
+     
      return render_template('admin.html', orders=orders)
 
 # book table route

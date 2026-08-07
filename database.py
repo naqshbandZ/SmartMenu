@@ -111,9 +111,28 @@ def get_orders():
         JOIN menu_item ON order_item.menu_item_id = menu_item.id
         WHERE orders.status = "pending"
     ''')
-    orders = cursor.fetchall()
+    rows = cursor.fetchall()
     conn.close()
-    return orders
+    
+    # group by order_id
+    orders = {}
+    for row in rows:
+        order_id = row['id']
+        if order_id not in orders:
+            orders[order_id] = {
+                'id': row['id'],
+                'table_id': row['table_id'],
+                'status': row['status'],
+                'total_amount': row['total_amount'],
+                'items': []
+            }
+        orders[order_id]['items'].append({
+            'name': row['name'],
+            'quantity': row['quantity'],
+            'price': row['price_at_order']
+        })
+    
+    return list(orders.values())
 
 def delete_table(id):
     conn = get_connection()
