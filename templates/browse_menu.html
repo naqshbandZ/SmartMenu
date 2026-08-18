@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block title %}Menu — Yialos{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="mb-1">Our Menu</h1>
+    <p class="text-muted mb-4">Browse our selection — visit us or scan the QR code at your table to order.</p>
+
+    {% for cat in categories %}
+    <h4 class="mt-4 border-bottom pb-2">{{ cat['name'] }}</h4>
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Item</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            {% if item['category_id'] == cat['id'] %}
+            <tr>
+                <td>
+                    {% if item['image_path'] %}
+                    <img src="{{ item['image_path'] }}" style="width:60px; border-radius:8px; margin-right:8px;">
+                    {% endif %}
+                    <strong>{{ item['name'] }}</strong>
+                </td>
+                <td class="text-muted">{{ item['description'] }}</td>
+                <td><strong>{{ item['price'] }}€</strong></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, flash
 from database import (get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu,
                        add_table, update_table_qr, show_table, delete_table,table_exists, add_orders,
                          add_order_item, get_orders,booking, show_booking,show_upcoming_bk,show_today_bk,
-                         done_order,order_history)
+                         done_order,order_history,delete_booking)
 from werkzeug.utils import secure_filename
 from qr_generator import generate_qr
 import os
+from datetime import date as dt_date
 from functools import wraps  # import wraps tool
 
 def login_required(f):       # f = the function below @login_required
@@ -54,24 +55,33 @@ def admin():
      
      return render_template('admin.html', orders=orders,orders_history=orders_history)
 
-
+# show menu in index
+@app.route('/menu')
+def browse_menu():
+    items = get_menu_item()
+    categories = get_category()
+    return render_template('browse_menu.html', items=items, categories=categories)
 
 # book table route
 @app.route('/book-table')
 def book_table():
-    tables = show_table()
-    return render_template('booking.html', tables=tables)
+    return render_template('booking.html')
 
 @app.route('/add_booking', methods=['POST'])
-def add_table():
+def add_booking():
     cs_name = request.form.get("customer_name")
     cs_phone = request.form.get("customer_phone")
     date = request.form.get("date")
     time = request.form.get("time")
     guest = request.form.get("guests")
-    table = int(request.form.get("table_id"))
 
-    booking(cs_name,cs_phone,date,time,guest,table)
+    booking_date = dt_date.fromisoformat(request.form.get('date'))
+    if booking_date < dt_date.today():
+        flash('Cannot book a past date!')
+        return redirect('/book-table')
+
+    booking(cs_name,cs_phone,date,time,guest)
+    flash('Booking confirmed! ')
     return redirect('/book-table')
 
 
@@ -174,6 +184,13 @@ def admin_delete_category():
     delete_category(id)
     return redirect('/admin/menu')
 
+@app.route('/admin/delete/booking/<int:id>')
+def admin_delete_booking(id):
+    delete_booking(id)
+    return redirect('/admin/show_bookings')
+
+
+
 @app.route('/admin/done_order/<int:id>')
 def done(id):
     done_order(id)
@@ -230,10 +247,12 @@ def admin_add_table():
 
     if table_exists(table_number):
         flash('Table already exists!')
+        return redirect('/admin/add_table')
 
     table_id = add_table(table_number)
     path = generate_qr(table_id, table_number)
     update_table_qr(table_id, path)
+
     
     return redirect('/admin/add_table')
 

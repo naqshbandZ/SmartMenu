@@ -158,10 +158,17 @@ def delete_table(id):
     conn.commit()
     conn.close()
 
-def booking(name,phone,date,time,guest,table_id):
+def booking(name,phone,date,time,guest):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('insert into booking(customer_name,customer_phone,date,time,guests,table_id) values (?,?,?,?,?,?)', (name,phone,date,time,guest,table_id))
+    cursor.execute('insert into booking(customer_name,customer_phone,date,time,guests) values (?,?,?,?,?)', (name,phone,date,time,guest))
+    conn.commit()
+    conn.close()
+
+def delete_booking(id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('delete from booking where id = ?',(id,))
     conn.commit()
     conn.close()
 
