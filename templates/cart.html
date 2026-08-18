@@ -6,6 +6,7 @@
     <p>empty cart</p>
 {% else %}
 <h1>cart</h1>
+ <form action="/place_order" method="POST">
 <table class="table table-hover">
   <thead>
     <tr>
@@ -31,6 +32,7 @@
       </td>
 
       <td>{{item['price']}}€</td>
+      <td><input type="text" placeholder="Special instructions..." name="note_{{ item['id'] }}"></td>
     </tr>
     {% endfor %}
   </tbody>
@@ -39,7 +41,6 @@
     <p>{{ total }}€</p>
 
 
-  <form action="/place_order" method="POST">
     <button type="submit">Place Order</button>
 </form>
 {% endif %}

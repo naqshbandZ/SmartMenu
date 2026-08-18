@@ -76,10 +76,10 @@ def add_orders(table_id,total_amount):
     conn.close()
     return order_id
 
-def add_order_item(order_id,menu_item_id,quantity,price):
+def add_order_item(order_id,menu_item_id,quantity,price,note):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('insert into order_item(order_id, menu_item_id, quantity, price_at_order) values (?,?,?,?)', (order_id,menu_item_id,quantity,price))
+    cursor.execute('insert into order_item(order_id, menu_item_id, quantity, price_at_order,note) values (?,?,?,?,?)', (order_id,menu_item_id,quantity,price,note))
     conn.commit()
     conn.close()
 
@@ -99,12 +99,28 @@ def show_table():
     conn.close()
     return tables
 
+def done_order(order_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('update orders set status = "done" where id = ?',(order_id,))
+    conn.commit()
+    conn.close()
+
+
+def order_history():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('select * from orders where orders.status = "done" and date(orders.created_at) = date("now")')
+    order_hist = cursor.fetchall()
+    conn.close()
+    return order_hist
+
 def get_orders():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
         SELECT orders.id, orders.table_id, orders.status, orders.total_amount,
-               order_item.quantity, order_item.price_at_order,
+               order_item.quantity, order_item.price_at_order,order_item.note,
                menu_item.name
         FROM orders
         JOIN order_item ON orders.id = order_item.order_id
@@ -129,7 +145,8 @@ def get_orders():
         orders[order_id]['items'].append({
             'name': row['name'],
             'quantity': row['quantity'],
-            'price': row['price_at_order']
+            'price': row['price_at_order'],
+            'note': row['note']
         })
     
     return list(orders.values())
@@ -141,6 +158,36 @@ def delete_table(id):
     conn.commit()
     conn.close()
 
+def booking(name,phone,date,time,guest,table_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('insert into booking(customer_name,customer_phone,date,time,guests,table_id) values (?,?,?,?,?,?)', (name,phone,date,time,guest,table_id))
+    conn.commit()
+    conn.close()
+
+def show_booking():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM booking')
+    bookings = cursor.fetchall()
+    conn.close()
+    return bookings
+
+def show_today_bk():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM booking WHERE date = date('now')")
+    today_bookings = cursor.fetchall()
+    conn.close()
+    return today_bookings
+
+def show_upcoming_bk():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM booking WHERE date > date('now')")
+    upcoming_bookings = cursor.fetchall()
+    conn.close()
+    return upcoming_bookings
 
 def table_exists(table_number):
     conn = get_connection()

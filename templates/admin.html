@@ -8,19 +8,45 @@
     <a href="/admin/menu" class="btn btn-primary">Manage Menu</a>
     <a href="/logout" class="btn btn-secondary">Logout</a>
     <a href="/admin/add_table" class="btn btn-primary">Manage tables</a>
+    <a href="/admin/show_bookings" class="btn btn-primary">show bookings</a>
 
 
 </div>
 {% for order in orders %}
     <div class="card mb-3">
         <div class="card-header">
-            Order #{{ order['id'] }} — Table {{ order['table_id'] }} — {{ order['total_amount'] }}€
+            Order #{{ order['id'] }} — Table {{ order['table_id'] }} — {{ order['total_amount'] }}€ - status - {{ order['status'] }}
+
+                <a href="/admin/done_order/{{ order['id'] }}" class="btn btn-success btn-sm">✓ Done</a>
+
+
         </div>
         <div class="card-body">
             {% for item in order['items'] %}
+            {% if item['note'] %}
+                <small>📝 {{ item['note'] }}</small>
+            {% endif %}
             <p>• {{ item['name'] }} x{{ item['quantity'] }} — {{ item['price'] }}€</p>
             {% endfor %}
         </div>
     </div>
 {% endfor %}
+<br>
+<br>
+<br>
+
+{% for orders in orders_history %}
+    <div class="card mb-3">
+        <div class="card-header">
+            Orders #{{ orders['id'] }} — Table {{ orders['table_id'] }} — {{ orders['total_amount'] }}€ - status - {{ orders['status'] }}
+
+{% endfor %}
+
+{% block extra_js %}
+<script>
+    setInterval(function() {
+        location.reload()
+    }, 5000)
+</script>
+{% endblock %}
 {% endblock %}

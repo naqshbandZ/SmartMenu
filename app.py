@@ -1,8 +1,21 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from database import get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu, add_table, update_table_qr, show_table, delete_table,table_exists, add_orders, add_order_item, get_orders
+from database import (get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu,
+                       add_table, update_table_qr, show_table, delete_table,table_exists, add_orders,
+                         add_order_item, get_orders,booking, show_booking,show_upcoming_bk,show_today_bk,
+                         done_order,order_history)
 from werkzeug.utils import secure_filename
 from qr_generator import generate_qr
 import os
+from functools import wraps  # import wraps tool
+
+def login_required(f):       # f = the function below @login_required
+    @wraps(f)                # keep original function name
+    def decorated(*args, **kwargs):  # catch ALL arguments Flask passes
+        if not session.get('logged_in'):  # check if logged in
+            return redirect('/login')      # not logged in → send to login
+        return f(*args, **kwargs)          # logged in → run the real function
+    return decorated                       # return the wrapped function
+
 
 app = Flask(__name__)
 
@@ -33,18 +46,35 @@ def login():
 
 # admin page route, 
 @app.route('/admin')
+@login_required
 def admin():
-     if not session.get('logged_in'):
-         return redirect('login.html')
      
      orders = get_orders()
+     orders_history = order_history()
      
-     return render_template('admin.html', orders=orders)
+     return render_template('admin.html', orders=orders,orders_history=orders_history)
+
+
 
 # book table route
 @app.route('/book-table')
 def book_table():
-    return render_template('book-table.html')
+    tables = show_table()
+    return render_template('booking.html', tables=tables)
+
+@app.route('/add_booking', methods=['POST'])
+def add_table():
+    cs_name = request.form.get("customer_name")
+    cs_phone = request.form.get("customer_phone")
+    date = request.form.get("date")
+    time = request.form.get("time")
+    guest = request.form.get("guests")
+    table = int(request.form.get("table_id"))
+
+    booking(cs_name,cs_phone,date,time,guest,table)
+    return redirect('/book-table')
+
+
 
 # menu route
 @app.route('/menu/<int:table_id>')
@@ -81,15 +111,17 @@ def add_to_cart():
     return redirect(f"/menu/{session.get('table_id', 1)}")
 #//-------------------------------new line
 @app.route('/place_order', methods=['POST'])
-def admin_add_order():
+def place_order():
 
     table_id = session.get('table_id')
+    
     cart = session.get('cart',[])
     total = sum(float(item['price']) * item['quantity'] for item in cart)
     order_id = add_orders(table_id,total)
 
     for item in cart:
-        add_order_item(order_id, item['id'], item['quantity'], item['price'])
+        note = request.form.get(f"note_{item['id']}", '')
+        add_order_item(order_id, item['id'], item['quantity'], item['price'],note)
 
     session.pop('cart', None)
     flash('Order placed successfully!')
@@ -130,6 +162,7 @@ def cart_page():
 # ------------------------ADMIN---------------------------------------------
 
 @app.route('/admin/category/add', methods=['POST'])
+@login_required
 def admin_add_category():
     name = request.form.get('cate_name')
     add_category(name)
@@ -141,7 +174,14 @@ def admin_delete_category():
     delete_category(id)
     return redirect('/admin/menu')
 
+@app.route('/admin/done_order/<int:id>')
+def done(id):
+    done_order(id)
+    return redirect('/admin')
+
+
 @app.route('/admin/menu/add',  methods=['POST'])
+@login_required
 def admin_add_menu():
     name = request.form.get('menu_name')
     description = request.form.get('description')
@@ -157,6 +197,7 @@ def admin_add_menu():
     return redirect('/admin/menu')
 
 @app.route('/admin/delete/menu', methods=['POST'])
+@login_required
 def admin_delete_menu():
     id = request.form.get('menu_id')
     delete_menu(id)
@@ -164,13 +205,26 @@ def admin_delete_menu():
 
 
 @app.route('/admin/menu')
+@login_required
 def admin_menu():
     categories = get_category()
     menus = get_menu_item()
     return render_template('admin_menu.html', categories=categories, menus=menus)
 
 
+# admin manage table booking 
+@app.route('/admin/show_bookings')
+@login_required
+def show_bookings():
+    bookings = show_booking()
+    upcomings = show_upcoming_bk()
+    todays = show_today_bk()
+
+    return render_template('admin_booking.html', bookings=bookings,upcomings=upcomings,todays=todays)
+
+
 @app.route('/admin/add/table', methods=['POST'])
+@login_required
 def admin_add_table():
     table_number=request.form.get('table_number')
 
@@ -185,6 +239,7 @@ def admin_add_table():
 
 
 @app.route('/admin/add_table')
+@login_required
 def admin_table():
     tables = show_table()
     return render_template("add_table.html", tables=tables)
