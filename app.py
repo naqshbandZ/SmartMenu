@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, flash
+from flask import Flask, render_template, request, session, redirect, flash, send_from_directory, jsonify
 from database import (get_menu_item, get_category, add_category, add_menu, delete_category, delete_menu,
                        add_table, update_table_qr, show_table, delete_table,table_exists, add_orders,
                          add_order_item, get_orders,booking, show_booking,show_upcoming_bk,show_today_bk,
@@ -27,7 +27,20 @@ ADMIN_PASSWORD = "admin123"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # collect images from the static/pic/ directory to display on the homepage
+    pic_dir = os.path.join(app.root_path, 'static', 'pic')
+    pics = []
+    try:
+        pics = [f for f in os.listdir(pic_dir) if not f.startswith('.')]
+    except Exception:
+        pics = []
+    return render_template('index.html', pics=pics)
+
+
+@app.route('/pic/<path:filename>')
+def pic_file(filename):
+    # serve raw images from the repo's static/pic/ folder
+    return send_from_directory(os.path.join(app.root_path, 'static', 'pic'), filename)
 
 # login route
 @app.route('/login', methods=['GET','POST'])
@@ -77,11 +90,11 @@ def add_booking():
 
     booking_date = dt_date.fromisoformat(request.form.get('date'))
     if booking_date < dt_date.today():
-        flash('Cannot book a past date!')
+        flash('Cannot book a past date!', 'danger')
         return redirect('/book-table')
 
     booking(cs_name,cs_phone,date,time,guest)
-    flash('Booking confirmed! ')
+    flash('Booking confirmed!', 'success')
     return redirect('/book-table')
 
 
@@ -101,15 +114,19 @@ def add_to_cart():
     name = request.form.get('item_name')
     price = request.form.get('item_price')
     image = request.form.get('item_image')
-    
+    # Only allow adding to cart when a table has been selected via QR scan
+    if not session.get('table_id'):
+        flash('Please scan the table QR code to order from the menu.', 'danger')
+        return redirect('/menu')
+
     if 'cart' not in session:
         session['cart'] = []
 
     for item in session['cart']:
         if item['id'] == id:
-            flash('Item already in cart! Change quantity from cart.')
-            return redirect(f"/menu/{session.get('table_id', 1)}")
-    
+            flash('Item already in cart! Change quantity from cart.', 'warning')
+            return redirect(f"/menu/{session.get('table_id')}")
+
     session['cart'].append({
         'id': id,
         'name': name,
@@ -118,15 +135,18 @@ def add_to_cart():
         'image': image
     })
     session.modified = True
-    return redirect(f"/menu/{session.get('table_id', 1)}")
+    return redirect(f"/menu/{session.get('table_id')}")
 #//-------------------------------new line
 @app.route('/place_order', methods=['POST'])
 def place_order():
 
     table_id = session.get('table_id')
-    
+    if not table_id:
+        flash('No table selected. Scan the table QR to place an order.', 'danger')
+        return redirect('/menu')
+
     cart = session.get('cart',[])
-    total = sum(float(item['price']) * item['quantity'] for item in cart)
+    total = round(sum(float(item['price']) * item['quantity'] for item in cart), 2)
     order_id = add_orders(table_id,total)
 
     for item in cart:
@@ -134,7 +154,7 @@ def place_order():
         add_order_item(order_id, item['id'], item['quantity'], item['price'],note)
 
     session.pop('cart', None)
-    flash('Order placed successfully!')
+    flash('Order placed successfully!', 'success')
     return redirect(f"/menu/{session.get('table_id', 1)}")
   
 
@@ -165,7 +185,7 @@ def decrease_quantity(item_id):
 def cart_page():
     # get cart from session
     cart = session.get('cart',[])
-    total = sum(float(item['price']) * item['quantity'] for item in cart)
+    total = round(sum(float(item['price']) * item['quantity'] for item in cart), 2)
     # pass it to cart.html
     return render_template('cart.html', cart=cart,total=total)
 
@@ -188,6 +208,13 @@ def admin_delete_category():
 def admin_delete_booking(id):
     delete_booking(id)
     return redirect('/admin/show_bookings')
+
+
+@app.route('/admin/orders/live')
+@login_required
+def live_orders():
+    orders = get_orders()
+    return jsonify(orders)
 
 
 
@@ -246,7 +273,7 @@ def admin_add_table():
     table_number=request.form.get('table_number')
 
     if table_exists(table_number):
-        flash('Table already exists!')
+        flash('Table already exists!', 'danger')
         return redirect('/admin/add_table')
 
     table_id = add_table(table_number)

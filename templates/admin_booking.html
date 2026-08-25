@@ -1,100 +1,145 @@
-{% extends "layout.html"%}
-{% block title %} show bookings {% endblock%}
+{% extends "layout.html" %}
+{% block title %}Bookings{% endblock %}
 {% block content %}
 
-<h1> history of  bookings </h1>
+<section class="page-hero admin-hero">
+    <div>
+        <span class="eyebrow">Reservations</span>
+        <h1>Bookings</h1>
+        <p>Review today, upcoming reservations, and booking history.</p>
+    </div>
+    <a href="/admin" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i>
+        Dashboard
+    </a>
+</section>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">name</th>
-      <th scope="col">phone</th>
-      <th scope="col">date</th>
-      <th scope="col">time</th>
-      <th scope="col">guests</th>
+<div class="booking-sections">
+    <section class="glass-panel table-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Today</span>
+            <h2>Today's Bookings</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table glass-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Guests</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for today in todays %}
+                    <tr>
+                        <td data-label="Name">{{ today['customer_name'] }}</td>
+                        <td data-label="Phone">{{ today['customer_phone'] }}</td>
+                        <td data-label="Date">{{ today['date'] }}</td>
+                        <td data-label="Time">{{ today['time'] }}</td>
+                        <td data-label="Guests">{{ today['guests'] }}</td>
+                        <td data-label="Action">
+                            <a href="/admin/delete/booking/{{ today['id'] }}" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash3"></i>
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-table">No bookings today.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-    </tr>
-  </thead>
-  <tbody>
-    
-        {%for booking in bookings%}
-    <tr>
+    <section class="glass-panel table-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Next</span>
+            <h2>Upcoming Bookings</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table glass-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Guests</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for upcoming in upcomings %}
+                    <tr>
+                        <td data-label="Name">{{ upcoming['customer_name'] }}</td>
+                        <td data-label="Phone">{{ upcoming['customer_phone'] }}</td>
+                        <td data-label="Date">{{ upcoming['date'] }}</td>
+                        <td data-label="Time">{{ upcoming['time'] }}</td>
+                        <td data-label="Guests">{{ upcoming['guests'] }}</td>
+                        <td data-label="Action">
+                            <a href="/admin/delete/booking/{{ upcoming['id'] }}" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash3"></i>
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-table">No upcoming bookings.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-      <td>{{booking['customer_name']}}</td>
-      <td>{{booking['customer_phone']}}</td>
-      <td>{{booking['date']}}</td>
-      <td>{{booking['time']}}</td>
-      <td>{{booking['guests']}}</td>
-            <td>   <a href="/admin/delete/booking/{{ booking['id'] }}" class="btn btn-danger btn-sm">Delete</a></td> 
-    </tr>
-        {% endfor %}
-
-    
-  </tbody>
-</table>
-
-<h2> todays bookings </h2>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">name</th>
-      <th scope="col">phone</th>
-      <th scope="col">date</th>
-      <th scope="col">time</th>
-      <th scope="col">guests</th>
-    </tr>
-  </thead>
-  <tbody>
-    
-        {%for today in todays%}
-    <tr>
-
-      <td>{{today['customer_name']}}</td>
-      <td>{{today['customer_phone']}}</td>
-      <td>{{today['date']}}</td>
-      <td>{{today['time']}}</td>
-      <td>{{today['guests']}}</td>
-      <td><a href="/admin/delete/booking/{{ today['id'] }}" class="btn btn-danger btn-sm">Delete</a></td>
-      
-    </tr>
-        {% endfor %}
-
-    
-  </tbody>
-</table>
-
-
-<h2> Upcomings bookings</h2>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">name</th>
-      <th scope="col">phone</th>
-      <th scope="col">date</th>
-      <th scope="col">time</th>
-      <th scope="col">guests</th>
-    </tr>
-  </thead>
-  <tbody>
-    
-        {%for upcoming in upcomings%}
-    <tr>
-
-      <td>{{upcoming['customer_name']}}</td>
-      <td>{{upcoming['customer_phone']}}</td>
-      <td>{{upcoming['date']}}</td>
-      <td>{{upcoming['time']}}</td>
-      <td>{{upcoming['guests']}}</td>
-      <td><a href="/admin/delete/booking/{{ upcoming['id'] }}" class="btn btn-danger btn-sm">Delete</a></td>
-
-
-    </tr>
-        {% endfor %}
-
-    
-  </tbody>
-</table>
+    <section class="glass-panel table-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Archive</span>
+            <h2>Booking History</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table glass-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Guests</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td data-label="Name">{{ booking['customer_name'] }}</td>
+                        <td data-label="Phone">{{ booking['customer_phone'] }}</td>
+                        <td data-label="Date">{{ booking['date'] }}</td>
+                        <td data-label="Time">{{ booking['time'] }}</td>
+                        <td data-label="Guests">{{ booking['guests'] }}</td>
+                        <td data-label="Action">
+                            <a href="/admin/delete/booking/{{ booking['id'] }}" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash3"></i>
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-table">No booking history yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 
 {% endblock %}

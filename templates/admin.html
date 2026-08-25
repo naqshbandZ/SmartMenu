@@ -2,51 +2,149 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 
-<div class="container mt-5">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, Admin! Here you can manage the menu and view orders.</p>
-    <a href="/admin/menu" class="btn btn-primary">Manage Menu</a>
-    <a href="/logout" class="btn btn-secondary">Logout</a>
-    <a href="/admin/add_table" class="btn btn-primary">Manage tables</a>
-    <a href="/admin/show_bookings" class="btn btn-primary">show bookings</a>
+<section class="page-hero admin-hero">
+    <div>
+        <span class="eyebrow">Operations</span>
+        <h1>Admin Dashboard</h1>
+        <p>Manage service, menu updates, table QR codes, and bookings from one calm workspace.</p>
+        <br>
+    </div>
+    <div class="admin-actions">
+        <a href="/admin/menu" class="btn btn-primary">
+            <i class="bi bi-pencil-square"></i>
+            Manage Menu
+        </a>
+        <a href="/admin/add_table" class="btn btn-outline-primary">
+            <i class="bi bi-qr-code"></i>
+            Tables
+        </a>
+        <a href="/admin/show_bookings" class="btn btn-outline-primary">
+            <i class="bi bi-calendar-week"></i>
+            Bookings
+        </a>
+        <a href="/logout" class="btn btn-light">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+        </a>
+    </div>
+</section>
 
-
-</div>
-{% for order in orders %}
-    <div class="card mb-3">
-        <div class="card-header">
-            Order #{{ order['id'] }} — Table {{ order['table_id'] }} — {{ order['total_amount'] }}€ - status - {{ order['status'] }}
-
-                <a href="/admin/done_order/{{ order['id'] }}" class="btn btn-success btn-sm">✓ Done</a>
-
-
+<div class="admin-dashboard-grid">
+    <section class="glass-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Live orders </span>
+            <h2>Active Orders</h2>
         </div>
-        <div class="card-body">
-            {% for item in order['items'] %}
-            {% if item['note'] %}
-                <small>📝 {{ item['note'] }}</small>
-            {% endif %}
-            <p>• {{ item['name'] }} x{{ item['quantity'] }} — {{ item['price'] }}€</p>
+
+        <div class="order-stack" id="orders-container">
+            {% for order in orders %}
+            <article class="order-row">
+                <div class="order-meta">
+                    <span>Order #{{ order['id'] }}</span>
+                    <strong>Table {{ order['table_id'] }}</strong>
+                </div>
+                <div class="status-line">
+                    <span class="status-pill">{{ order['status'] }}</span>
+                    <a href="/admin/done_order/{{ order['id'] }}" class="btn btn-success btn-sm done-btn">
+                        <i class="bi bi-check-lg"></i>
+                        Done
+                    </a>
+                </div>
+                <div class="order-items">
+                    {% for item in order['items'] %}
+                    <p>{{ item['name'] }} x{{ item['quantity'] }} <span>{{ item['price'] }}€</span></p>
+                    {% if item['note'] %}
+                    <small><i class="bi bi-chat-left-text"></i> {{ item['note'] }}</small>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="order-total">
+                    <span>Total</span>
+                    <strong>{{ order['total_amount'] }}€</strong>
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-inline">
+                <i class="bi bi-check2-circle"></i>
+                <span>No active orders right now.</span>
+            </div>
             {% endfor %}
         </div>
-    </div>
-{% endfor %}
-<br>
-<br>
-<br>
+    </section>
 
-{% for orders in orders_history %}
-    <div class="card mb-3">
-        <div class="card-header">
-            Orders #{{ orders['id'] }} — Table {{ orders['table_id'] }} — {{ orders['total_amount'] }}€ - status - {{ orders['status'] }}
+    <section class="glass-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Archive</span>
+            <h2>Order History</h2>
+        </div>
 
-{% endfor %}
+        <div class="history-list">
+            {% for orders in orders_history %}
+            <article class="history-row">
+                <span>Order #{{ orders['id'] }}</span>
+                <strong>Table {{ orders['table_id'] }}</strong>
+                <em>{{ orders['total_amount'] }}€</em>
+                <span class="status-pill">{{ orders['status'] }}</span>
+            </article>
+            {% else %}
+            <div class="empty-inline">
+                <i class="bi bi-clock-history"></i>
+                <span>No completed orders yet.</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+{% endblock %}
 
 {% block extra_js %}
 <script>
-    setInterval(function() {
-        location.reload()
-    }, 5000)
+function refreshOrders() {
+    fetch('/admin/orders/live')
+        .then(response => response.json())
+        .then(orders => {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = '';
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="bi bi-check2-circle"></i> No active orders right now</div>';
+                return;
+            }
+
+            orders.forEach(order => {
+                let itemsHtml = order.items.map(item => `
+                    <p>${item.name} x${item.quantity} <span>${item.price}€</span></p>
+                    ${item.note ? `<small><i class="bi bi-chat-left-text"></i> ${item.note}</small>` : ''}
+                `).join('');
+
+                container.innerHTML += `
+                    <article class="order-row">
+                        <div class="order-meta">
+                            <span>Order #${order.id}</span>
+                            <strong>Table ${order.table_id}</strong>
+                        </div>
+                        <div class="status-line">
+                            <span class="status-pill">${order.status || 'pending'}</span>
+                            <a href="/admin/done_order/${order.id}" class="btn btn-success btn-sm done-btn">
+                                <i class="bi bi-check-lg"></i>
+                                Done
+                            </a>
+                        </div>
+                        <div class="order-items">
+                            ${itemsHtml}
+                        </div>
+                        <div class="order-total">
+                            <span>Total</span>
+                            <strong>${order.total_amount}€</strong>
+                        </div>
+                    </article>
+                `;
+            });
+        });
+}
+
+setInterval(refreshOrders, 5000);
+refreshOrders();
 </script>
-{% endblock %}
 {% endblock %}

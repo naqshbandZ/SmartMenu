@@ -1,48 +1,120 @@
 {% extends "layout.html" %}
-{% block title %} Add menu {% endblock %}
+{% block title %}Manage Menu{% endblock %}
 {% block content %}
 
-<form method="POST" action="/admin/category/add">
-    <input type="text" name="cate_name" class="form-control" placeholder="Category name">
-    <button type="submit" class="btn btn-primary">Add Category</button>
-</form>
+<section class="page-hero admin-hero">
+    <div>
+        <span class="eyebrow">Menu studio</span>
+        <h1>Manage Menu</h1>
+        <p>Create categories, upload dishes, and keep the guest menu polished.</p>
+        <br>
+    </div>
+    <a href="/admin" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i>
+        Dashboard
+    </a>
+</section>
 
-<ul class="list-group">
-  <li class="list-group-item active" aria-current="true">categories</li>
-{% for cate in categories %}
-  <li class="list-group-item">{{ cate['name'] }}</li>
+<div class="management-grid">
+    <section class="glass-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Categories</span>
+            <h2>Add Category</h2>
+        </div>
+        <form method="POST" action="/admin/category/add" class="inline-form">
+            <input type="text" name="cate_name" class="form-control" placeholder="Category name" required>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i>
+                Add
+            </button>
+        </form>
 
-<form method="POST" action="/admin/delete/category">
-    <input type="hidden" name="category_id" value="{{ cate['id'] }}">
-    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-</form>
-</ul>
-{% endfor %}
+        <div class="admin-list">
+            {% for cate in categories %}
+            <article class="admin-list-row">
+                <span>{{ cate['name'] }}</span>
+                <form method="POST" action="/admin/delete/category">
+                    <input type="hidden" name="category_id" value="{{ cate['id'] }}">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash3"></i>
+                        Delete
+                    </button>
+                </form>
+            </article>
+            {% else %}
+            <div class="empty-inline">
+                <i class="bi bi-tags"></i>
+                <span>No categories yet.</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
 
-<form method="POST" action="/admin/menu/add" enctype="multipart/form-data">
-    <input type="text" name="menu_name" class="form-control mb-2" placeholder="Item name">
-    <input type="text" name="description" class="form-control mb-2" placeholder="Description">
-    <input type="number" step="0.01" name="price" class="form-control mb-2" placeholder="Price">
-    <select name="category" class="form-select mb-2">
-        {% for cate in categories %}
-        <option value="{{ cate['id'] }}">{{ cate['name'] }}</option>
+    <section class="glass-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Dishes</span>
+            <h2>Add Menu Item</h2>
+        </div>
+        <form method="POST" action="/admin/menu/add" enctype="multipart/form-data" class="glass-form">
+            <div class="form-grid">
+                <div class="field-group">
+                    <label class="form-label">Item Name</label>
+                    <input type="text" name="menu_name" class="form-control" placeholder="Fresh sea bass" required>
+                </div>
+                <div class="field-group">
+                    <label class="form-label">Price</label>
+                    <input type="number" step="0.01" name="price" class="form-control" placeholder="18.50" required>
+                </div>
+                <div class="field-group wide-field">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="description" class="form-control" placeholder="Short menu description">
+                </div>
+                <div class="field-group">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select" required>
+                        {% for cate in categories %}
+                        <option value="{{ cate['id'] }}">{{ cate['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="form-label">Image</label>
+                    <input type="file" name="image_path" class="form-control" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cloud-arrow-up"></i>
+                Add Item
+            </button>
+        </form>
+    </section>
+</div>
+
+<section class="glass-panel admin-menu-list">
+    <div class="section-heading">
+        <span class="eyebrow">Current menu</span>
+        <h2>Menu Items</h2>
+    </div>
+
+    <div class="admin-list">
+        {% for menu in menus %}
+        <article class="admin-list-row menu-admin-row">
+            <span>{{ menu['name'] }}</span>
+            <form method="POST" action="/admin/delete/menu">
+                <input type="hidden" name="menu_id" value="{{ menu['id'] }}">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash3"></i>
+                    Delete
+                </button>
+            </form>
+        </article>
+        {% else %}
+        <div class="empty-inline">
+            <i class="bi bi-journal-text"></i>
+            <span>No menu items yet.</span>
+        </div>
         {% endfor %}
-    </select>
-    <input type="file" name="image_path" class="form-control mb-2">
-    <button type="submit" class="btn btn-primary">Add Item</button>
-</form>
-
-<ul class="list-group">
-  <li class="list-group-item active" aria-current="true">menu</li>
-{% for menu in menus %}
-  <li class="list-group-item">{{ menu['name'] }}</li>
-
-  <form method="POST" action="/admin/delete/menu">
-    <input type="hidden" name="menu_id" value="{{ menu['id'] }}">
-    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-  </form>
-</ul>
-{% endfor %}
+    </div>
+</section>
 
 {% endblock %}
- 

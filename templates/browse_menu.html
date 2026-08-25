@@ -1,38 +1,50 @@
 {% extends "layout.html" %}
-{% block title %}Menu — Yialos{% endblock %}
+{% block title %}Menu - Yialos{% endblock %}
 {% block content %}
 
-<div class="container mt-4">
-    <h1 class="mb-1">Our Menu</h1>
-    <p class="text-muted mb-4">Browse our selection — visit us or scan the QR code at your table to order.</p>
+<section class="page-hero menu-hero">
+    <div>
+        <span class="eyebrow">Yialos kitchen</span>
+        <h1>Our Menu</h1>
+        <p>Fresh plates, coastal favorites, and simple choices made easy to browse.</p>
+        <br>
+    </div>
+    <a href="/book-table" class="btn btn-outline-primary">
+        <i class="bi bi-calendar2-check"></i>
+        Book a Table
+    </a>
+</section>
 
+<div class="category-stack">
     {% for cat in categories %}
-    <h4 class="mt-4 border-bottom pb-2">{{ cat['name'] }}</h4>
-    <table class="table table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Item</th>
-                <th>Description</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
+    <section class="menu-category glass-panel">
+        <div class="section-heading">
+            <span class="eyebrow">Category</span>
+            <h2>{{ cat['name'] }}</h2>
+        </div>
+        <div class="menu-grid">
             {% for item in items %}
             {% if item['category_id'] == cat['id'] %}
-            <tr>
-                <td>
+            <article class="menu-card">
+                <div class="menu-image">
                     {% if item['image_path'] %}
-                    <img src="{{ item['image_path'] }}" style="width:60px; border-radius:8px; margin-right:8px;">
+                    <img src="{{ item['image_path'] }}" alt="{{ item['name'] }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="{{ item['name'] }}">
                     {% endif %}
-                    <strong>{{ item['name'] }}</strong>
-                </td>
-                <td class="text-muted">{{ item['description'] }}</td>
-                <td><strong>{{ item['price'] }}€</strong></td>
-            </tr>
+                </div>
+                <div class="menu-card-body">
+                    <div>
+                        <h3>{{ item['name'] }}</h3>
+                        <p>{{ item['description'] }}</p>
+                    </div>
+                    <strong class="price-pill">{{ item['price'] }}€</strong>
+                </div>
+            </article>
             {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    </section>
     {% endfor %}
 </div>
 

@@ -1,22 +1,57 @@
 {% extends "layout.html" %}
-{% block title %}add table {% endblock%}
+{% block title %}Manage Tables{% endblock %}
 
 {% block content %}
 
-<form method="POST" action="/admin/add/table">
-    <input type="text" name="table_number" class="form-control mb-2" placeholder="Table number">
-    <button type="submit" class="btn btn-primary">Add Table</button>
-</form>
-
-<div class="card" style="width: 200px;">
-    {% for table in tables%}
-    <img src="{{ table['qr_image_path'] }}" class="card-img-top" alt="QR Code">
-    <div class="card-body">
-        <h5 class="card-title">Table {{ table['table_number'] }}</h5>
+<section class="page-hero admin-hero">
+    <div>
+        <span class="eyebrow">QR service</span>
+        <h1>Manage Tables</h1>
+        <p>Create table QR codes for guests to open the ordering menu directly.</p>
     </div>
-        <a href="/admin/delete/table/{{ table['id'] }}" class="btn btn-danger btn-sm">Delete</a>
-        <a href="{{ table['qr_image_path'] }}" download class="btn btn-primary btn-sm">Download QR</a>
+    <a href="/admin" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i>
+        Dashboard
+    </a>
+</section>
 
+<section class="glass-panel table-manager">
+    <form method="POST" action="/admin/add/table" class="inline-form">
+        <input type="text" name="table_number" class="form-control" placeholder="Table number" required>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Add Table
+        </button>
+    </form>
+</section>
+
+<section class="qr-grid">
+    {% for table in tables %}
+    <article class="qr-card glass-panel">
+        <div class="qr-image">
+            <img src="{{ table['qr_image_path'] }}" alt="QR code for table {{ table['table_number'] }}">
+        </div>
+        <div class="qr-card-body">
+            <h2>Table {{ table['table_number'] }}</h2>
+            <div class="card-actions">
+                <a href="{{ table['qr_image_path'] }}" download class="btn btn-primary btn-sm">
+                    <i class="bi bi-download"></i>
+                    Download
+                </a>
+                <a href="/admin/delete/table/{{ table['id'] }}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash3"></i>
+                    Delete
+                </a>
+            </div>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty-state glass-panel">
+        <i class="bi bi-qr-code"></i>
+        <h2>No tables yet</h2>
+        <p>Add a table number to generate its first QR code.</p>
+    </div>
     {% endfor %}
-</div>
+</section>
+
 {% endblock %}

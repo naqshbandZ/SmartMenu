@@ -1,47 +1,66 @@
-{%extends "layout.html"%}
-{% block title %}cart{% endblock %}
-{%block content%}
+{% extends "layout.html" %}
+{% block title %}Cart{% endblock %}
+{% block content %}
 
-{%if not cart %}
-    <p>empty cart</p>
+<section class="page-hero cart-hero">
+    <div>
+        <span class="eyebrow">Your order</span>
+        <h1>Cart</h1>
+        <p>Review quantities, add notes, and place the order when everything feels right.</p>
+    </div>
+</section>
+
+{% if not cart %}
+    <div class="empty-state glass-panel">
+        <i class="bi bi-bag"></i>
+        <h2>Your cart is empty</h2>
+        <p>Start with the menu and add something delicious.</p>
+    </div>
 {% else %}
-<h1>cart</h1>
- <form action="/place_order" method="POST">
-<table class="table table-hover">
-  <thead>
-    <tr>
-      <th scope="col">name</th>
-      <th scope="col">Quantity</th>
-      <th scope="col">price</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
+<form action="/place_order" method="POST" class="cart-layout">
+    <section class="glass-panel cart-items">
+        {% for item in cart %}
+        <article class="cart-row">
+            <div class="cart-item-main">
+                <div class="cart-image">
+                    {% if item['image'] %}
+                    <img src="{{ item['image'] }}" alt="{{ item['name'] }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="{{ item['name'] }}">
+                    {% endif %}
+                </div>
+                <div>
+                    <h2>{{ item['name'] }}</h2>
+                    <span>{{ item['price'] }}€ each</span>
+                </div>
+            </div>
 
-    {%for item in cart%}
+            <div class="quantity-control" aria-label="Quantity">
+                <a href="/cart/decrease/{{ item['id'] }}" class="icon-button" aria-label="Decrease quantity">
+                    <i class="bi bi-dash-lg"></i>
+                </a>
+                <strong>{{ item['quantity'] }}</strong>
+                <a href="/cart/increase/{{ item['id'] }}" class="icon-button" aria-label="Increase quantity">
+                    <i class="bi bi-plus-lg"></i>
+                </a>
+            </div>
 
-      <td>{{item['name']}}
-        <img src="{{ item['image'] }}" style="width:80px;">
-      </td>
+            <div class="field-group cart-note">
+                <label class="form-label">Note</label>
+                <input type="text" class="form-control" placeholder="Special instructions" name="note_{{ item['id'] }}">
+            </div>
+        </article>
+        {% endfor %}
+    </section>
 
-       <td>
-
-    <a href="/cart/decrease/{{ item['id'] }}">[-]</a>
-    {{ item['quantity'] }}
-    <a href="/cart/increase/{{ item['id'] }}">[ +]</a>
-      </td>
-
-      <td>{{item['price']}}€</td>
-      <td><input type="text" placeholder="Special instructions..." name="note_{{ item['id'] }}"></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-    <h5>total price</h5>
-    <p>{{ total }}€</p>
-
-
-    <button type="submit">Place Order</button>
+    <aside class="glass-panel cart-summary">
+        <span class="eyebrow">Total</span>
+        <strong>{{ total }}€</strong>
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-send-check"></i>
+            Place Order
+        </button>
+    </aside>
 </form>
 {% endif %}
 {% endblock %}

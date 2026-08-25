@@ -1,49 +1,91 @@
-{%extends "layout.html"%} 
+{% extends "layout.html" %} 
 {% block title %}Menu{% endblock %}
 {% block content %}
-<h1>Menu</h1>
-<a href="/cart" class="btn btn-success">🛒 View Cart</a>
+<section class="page-hero menu-hero">
+    <div>
+        <span class="eyebrow">Table ordering</span>
+        <h1>Menu</h1>
+        <p>Add dishes to your cart and send the order straight to the kitchen.</p>
+    </div>
+</section>
+
+<a href="/cart" class="floating-cart" aria-label="View cart">
+    <i class="bi bi-cart-fill"></i>
+    <span class="cart-count">{{ (session.get('cart')|length) if session.get('cart') else 0 }}</span>
+</a>
+
+{% if error %}
+<div class="empty-state glass-panel">
+    <i class="bi bi-info-circle"></i>
+    <p>{{ error }}</p>
+</div>
+{% endif %}
+
+<div class="category-stack">
 {% for cat in categories %}
-<h3>{{ cat['name'] }}</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
+<section class="menu-category glass-panel">
+    <div class="section-heading">
+        <span class="eyebrow">Category</span>
+        <h2>{{ cat['name'] }}</h2>
+    </div>
+    <div class="menu-grid order-menu-grid">
         {% for item in items %}
-        {%if item['category_id'] == cat['id']%}
-        <tr>
-            <td>{{ item.name }}
-                <img src="{{ item['image_path'] }}" style="width:80px;">
-            </td>
-            <td>{{ item.description }}</td>
-            <td>${{ item.price }}</td>
-           <td> 
+        {% if item['category_id'] == cat['id'] %}
+        <article class="menu-card order-card">
+            <div class="menu-image">
+                {% if item['image_path'] %}
+                <img src="{{ item['image_path'] }}" alt="{{ item['name'] }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="{{ item['name'] }}">
+                {% endif %}
+            </div>
+            <div class="menu-card-body">
+                <div>
+                    <h3>{{ item['name'] }}</h3>
+                    <p>{{ item['description'] }}</p>
+                </div>
+                <div class="card-actions">
+                    <strong class="price-pill">{{ item['price'] }}€</strong>
+                    {% if session.get('table_id') %}
                     <form method="POST" action="/cart/add">
-            <input type="hidden" name="item_id"    value="{{ item['id'] }}">
-            <input type="hidden" name="item_name"  value="{{ item['name'] }}">
-            <input type="hidden" name="item_price" value="{{ item['price'] }}">
-            <input type="hidden" name="item_image" value="{{ item['image_path'] }}">
-            <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
-        </form>
-            </td>
-
-        </tr>
-        {%endif%}
-        {% if error %}
-        <tr>
-            <td colspan="3" class="text-center text-danger">{{ error }}</td>
-        </tr>
+                        <input type="hidden" name="item_id" value="{{ item['id'] }}">
+                        <input type="hidden" name="item_name" value="{{ item['name'] }}">
+                        <input type="hidden" name="item_price" value="{{ item['price'] }}">
+                        <input type="hidden" name="item_image" value="{{ item['image_path'] }}">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg"></i>
+                            Add
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="hint-text">Scan table QR to order</div>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
         {% endif %}
-    </tbody>
-    {% endfor %}
-</table>    
+        {% endfor %}
+    </div>
+</section>
 {% endfor %}
+</div>
+{% block extra_js %}
+<script>
+document.querySelectorAll('form').forEach(function(form) {
+    form.addEventListener('submit', function() {
+        sessionStorage.setItem('scrollPos', window.scrollY);
+    });
+});
+
+window.addEventListener('load', function() {
+    var pos = sessionStorage.getItem('scrollPos');
+    if (pos) {
+        setTimeout(function() {
+            window.scrollTo(0, parseInt(pos));
+            sessionStorage.removeItem('scrollPos');
+        }, 50);  // wait 50ms for page to fully render
+    }
+});
+</script>
 {% endblock %}
-
-
+{% endblock %}

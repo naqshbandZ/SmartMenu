@@ -1,22 +1,27 @@
 {% extends "layout.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Login</h2>
-    <form method="post" action="/login">
-        <div class="mb-3">
+<section class="auth-shell">
+    <div class="auth-card glass-panel">
+        <span class="eyebrow">Admin access</span>
+        <h1>Welcome Back</h1>
+        <form method="post" action="/login" class="glass-form">
+            <div class="field-group">
             <label for="username" class="form-label">Username</label>
             <input type="text" class="form-control" id="username" name="username" required>
-        </div>
-        <div class="mb-3">
+            </div>
+            <div class="field-group">
             <label for="password" class="form-label">Password</label>
             <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Login
+            </button>
             {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
+            <div class="alert app-alert error-alert">{{ error }}</div>
             {% endif %}
-    </form>
-
-</div>
+        </form>
+    </div>
+</section>
 {% endblock %}

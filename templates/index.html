@@ -1,12 +1,70 @@
 {% extends "layout.html" %}
-{% block title %}Menu{% endblock %}
+{% block title %}Yialos Grill House{% endblock %}
 {% block content %}
-<a href="/login" class="btn btn-primary">Login</a>
-<br>
-<a href="/book-table" class="btn btn-primary">BOOK A TABLE</a>
-<br>
-<a href="/menu" class="btn btn-primary">SHOW MENU</a>
-<br>
+<section class="hero" id="about">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
 
+    <div class="hero-content">
+        <div class="hero-eyebrow">● E713, NEO CHORIO · PÁFOS, CYPRUS</div>
+        <h1>Yialos <span>Grill House</span></h1>
+        <p class="hero-sub">Fresh grills, warm hospitality and breathtaking sea views  right on the shores of Pafos.</p>
 
+        <div class="hero-btns">
+            <a href="/book-table" class="btn-gold">Reserve a Table</a>
+            <a href="/menu" class="btn-outline-gold">View Full Menu</a>
+        </div>
+    </div>
+
+    <div class="scroll-hint" aria-label="Scroll hint">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+    </div>
+</section>
+
+<section class="section info-strip">
+    <div class="glass-card stat-row">
+        <div class="stat-item">
+            <span class="dot gold"></span>
+            <strong>Mon–Sun</strong>
+            <small>12:00–23:00</small>
+        </div>
+        <div class="stat-item">
+            <span class="dot gold"></span>
+            <strong>Phone</strong>
+            <small>+357 99 529 448</small>
+        </div>
+        <div class="stat-item">
+            <span class="dot gold"></span>
+            <strong>Cuisine</strong>
+            <small>Greek · Grill · Mediterranean</small>
+        </div>
+    </div>
+</section>
+
+<section class="section feature-grid" id="contact">
+    <div class="feature-card glass-card">
+        <div class="feature-icon">🔥</div>
+        <h3>Fresh Grills</h3>
+        <p>Charcoal grilled to perfection daily.</p>
+    </div>
+
+    <div class="feature-card glass-card">
+        <div class="feature-icon">🌊</div>
+        <h3>Sea Views</h3>
+        <p>Dine with the Mediterranean in sight.</p>
+    </div>
+
+    <div class="feature-card glass-card">
+        <div class="feature-icon">🫒</div>
+        <h3>Local Ingredients</h3>
+        <p>Source fresh from Cypriot farms.</p>
+    </div>
+
+    <div class="feature-card glass-card">
+        <div class="feature-icon">🫒</div>
+        <h3>Greek Tradition</h3>
+        <p>Authentic recipes passed through generations.</p>
+    </div>
+</section>
 {% endblock %}
