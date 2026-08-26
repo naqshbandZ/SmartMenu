@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS order_item(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     quantity INTEGER NOT NULL,
     price_at_order DECIMAL,
+    note VARCHAR,
     order_id INTEGER,
     menu_item_id INTEGER,
     FOREIGN KEY (order_id) REFERENCES orders(id),
