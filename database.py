@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 def get_connection():
@@ -24,9 +25,9 @@ def get_category():
 
 
 def get_connection():
-    conn = sqlite3.connect('db.sqlite3')
+    db_path = os.path.join(os.path.dirname(__file__), 'db.sqlite3')
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    
     return conn
 
 def add_category(name):
@@ -119,10 +120,12 @@ def get_orders():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT orders.id, orders.table_id, orders.status, orders.total_amount,
-               order_item.quantity, order_item.price_at_order,order_item.note,
+        SELECT orders.id, orders.status, orders.total_amount,
+               restaurant_table.table_number,
+               order_item.quantity, order_item.price_at_order, order_item.note,
                menu_item.name
         FROM orders
+        JOIN restaurant_table ON orders.table_id = restaurant_table.id
         JOIN order_item ON orders.id = order_item.order_id
         JOIN menu_item ON order_item.menu_item_id = menu_item.id
         WHERE orders.status = "pending"
@@ -130,14 +133,13 @@ def get_orders():
     rows = cursor.fetchall()
     conn.close()
     
-    # group by order_id
     orders = {}
     for row in rows:
         order_id = row['id']
         if order_id not in orders:
             orders[order_id] = {
                 'id': row['id'],
-                'table_id': row['table_id'],
+                'table_number': row['table_number'],
                 'status': row['status'],
                 'total_amount': row['total_amount'],
                 'items': []
