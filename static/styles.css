@@ -1431,3 +1431,45 @@ body .app-alert,
   .history-row { grid-template-columns: 1fr auto; }
   .admin-actions { justify-content: flex-start; }
 }
+
+
+
+
+
+
+/* ── Footer ─────────────────────────────────────────────── */
+.site-footer {
+  margin-top: auto;
+  padding: 1.5rem 2rem;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  font-size: .8rem;
+  color: rgba(11,31,75,.6);
+}
+
+.site-footer .footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.site-footer .footer-brand span {
+  color: var(--sky);
+  font-style: italic;
+}
+
+.site-footer a {
+  color: var(--sky);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.site-footer a:hover { text-decoration: underline; }
