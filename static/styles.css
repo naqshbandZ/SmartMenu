@@ -1439,37 +1439,38 @@ body .app-alert,
 
 /* ── Footer ─────────────────────────────────────────────── */
 .site-footer {
-  margin-top: auto;
-  padding: 1.5rem 2rem;
-  background: rgba(255,255,255,.15);
+  background: rgba(26, 26, 27, 0.45);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,.25);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: .75rem;
-  font-size: .8rem;
-  color: rgba(11,31,75,.6);
+  border-top: 1px solid rgba(255,255,255,.12);
+  color: rgba(200,151,58,.7);
+}
+
+.site-footer {
+  padding: .6rem 2rem;
+  font-size: .75rem;
 }
 
 .site-footer .footer-brand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem;
-  color: var(--navy);
-  font-weight: 600;
+  color: #C8973A;
 }
 
 .site-footer .footer-brand span {
-  color: var(--sky);
+  color: #C8973A;
   font-style: italic;
 }
 
 .site-footer a {
-  color: var(--sky);
-  text-decoration: none;
-  font-weight: 500;
+  color: #C8973A;
+}
+.site-footer a:hover { text-decoration: underline; }
+
+
+body {
+  display: flex;
+  flex-direction: column;
 }
 
-.site-footer a:hover { text-decoration: underline; }
+.app-main {
+  flex: 1;
+}
